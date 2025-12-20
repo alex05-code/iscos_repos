@@ -318,7 +318,7 @@ class PAsistenciaDocente:
 
         st.divider()
 
-       
+    
         with st.form("FormularioRegistro"):
             txtDni = st.text_input("DNI del docente")
             fecha_actual = st.date_input("Fecha")
