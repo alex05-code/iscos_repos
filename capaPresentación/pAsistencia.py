@@ -381,5 +381,5 @@ class PAsistenciaDocente:
 
         st.divider()
 
-        st.subheader(" Reporte ")
+        st.subheader(" Reporte general")
         st.dataframe(self.lDocente.mostrarReporte())
