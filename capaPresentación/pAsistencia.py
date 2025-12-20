@@ -388,7 +388,7 @@
 from capaLogica.lAsistencia import LDocente
 import streamlit as st
 import pandas as pd
-from datetime import date
+from datetime import datetime,date
 import re
 
 class PAsistenciaDocente:
@@ -468,7 +468,7 @@ class PAsistenciaDocente:
                 return
 
             # ❗❗❗ FECHA EXACTAMENTE COMO TÚ LA ENVIASTE ❗❗❗
-            variableFecha = date.strptime(fecha_nac ,"%Y-%m-%d")
+            variableFecha = datetime.strptime(fecha_nac ,"%Y-%m-%d").date
             variableSql = variableFecha.strftime('%Y-%m-%d')
 
             persona = {
