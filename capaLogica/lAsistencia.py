@@ -23,7 +23,11 @@
 #         return self.dAsistenciaDocente.insertarAsistencia(asistencia_docente)
 
 # from capaDatos.dAsistencia import DAsistenciaDocente 
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> parent of a58cf3c (a)
 # class LDocente:
 #     def __init__(self):
 #         self.dAsistenciaDocente = DAsistenciaDocente()
