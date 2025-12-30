@@ -13,5 +13,6 @@
 
 from capaPresentación.pAsistencia import PAsistenciaDocente
 
-objetoPrueba = PAsistenciaDocente() # uv run streamlit run .\main.py eso para correr en el navegador :3
+if __name__ == "__main__":
+    PAsistenciaDocente() # uv run streamlit run .\main.py eso para correr en el navegador :3
 
