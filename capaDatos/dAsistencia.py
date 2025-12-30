@@ -1,3 +1,4 @@
+
 # from conexion import ConexionDB
 
 # class DAsistenciaDocente:
@@ -191,4 +192,3 @@ class DAsistenciaDocente:
             .delete()
             .eq("dni", dni)
         )
-
