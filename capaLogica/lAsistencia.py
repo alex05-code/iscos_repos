@@ -1,8 +1,4 @@
-
-
 # from capaDatos.dAsistencia import DAsistenciaDocente 
-# # from capaDatos.dAsistencia import DAsistenciaDocente 
-
 
 # # class LDocente:
 # #     def __init__(self):
@@ -74,7 +70,6 @@
 
 #     def eliminarDocente(self, dni):
 #         return self.dAsistenciaDocente.eliminarDocenteTotal(dni)
-
 from capaDatos.dAsistencia import DAsistencia
 
 class LAsistencia:
@@ -95,8 +90,6 @@ class LAsistencia:
 
     def listar_asistencias(self, rol):
         return self.data.listar_asistencias(rol)
-
-
 
     def editar_asistencia(self, dni, fecha, datos, rol):
         return self.data.editar_asistencia(dni, fecha, datos, rol)

@@ -998,7 +998,6 @@
 #                     df = pd.DataFrame(estadisticas)
 #                     conteo = df["estado"].value_counts()
 #                     st.pyplot(conteo.plot.pie(autopct="%1.1f%%").figure)
-from capaLogica.lAsistencia import LDocente
 import streamlit as st
 import pandas as pd
 from capaLogica.lAsistencia import LAsistencia
@@ -1022,55 +1021,11 @@ class PAsistenciaDocente:
         elif menu == "Reporte":
             self.vista_reporte()
 
-
-    def validar_telefono(self, telefono):
-        return telefono.isdigit() and len(telefono) in [9, 10]
-
-    def validar_solo_letras(self, texto):
-        return bool(re.fullmatch(r"[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+", texto))
-
-    def validar_correo(self, correo):
-        patron = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-        return re.match(patron, correo) is not None
-
-    def validar_vacios(self, campos):
-        for v in campos.values():
-            if str(v).strip() == "":
-                return False
-        return True
-
-    def validar_edad_minima(self, fecha_nac):
-        try:
-            fecha_nacimiento = datetime.strptime(fecha_nac, "%Y-%m-%d").date()
-            hoy = date.today()
-            edad = hoy.year - fecha_nacimiento.year - (
-                (hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day)
-            )
-            return edad >= 23
-        except:
-            return False
-
-    def dni_existe(self, dni):
-        datos = self.lDocente.buscarPorDni(dni)
-        return datos is not None and len(datos) > 0
-
-    # ================= INTERFAZ =================
-    def construirInterfaz(self):
-        st.title("Avance ISCOS")
-
-        # =================================================
-        # 1 REGISTRAR DOCENTE
-        # =================================================
-        st.subheader("1. Registrar docente")
-
-        with st.form("FormularioNuevoDocente"):
-=======
     # ================= Registrar Persona =================
     def vista_registrar_persona(self):
         st.header("Registrar Persona")
         roles = ["docente", "alumno"]
         with st.form("form_persona"):
->>>>>>> RichardTaza
             dni = st.text_input("DNI")
             nombres = st.text_input("Nombres")
             apellidos = st.text_input("Apellidos")
@@ -1089,148 +1044,6 @@ class PAsistenciaDocente:
             df = pd.DataFrame(personas)[["dni","nombres","apellidos","rol"]]
             st.dataframe(df)
 
-
-            if not self.validar_vacios(campos):
-                st.error("No se permiten campos vacíos")
-            elif not self.validar_dni(dni):
-                st.error("DNI inválido")
-            elif self.dni_existe(dni):
-                st.error("El DNI ya está registrado")
-            elif not self.validar_solo_letras(nombres):
-                st.error("Nombres solo deben contener letras")
-            elif not self.validar_solo_letras(apellidos):
-                st.error("Apellidos solo deben contener letras")
-            elif not self.validar_solo_letras(especialidad):
-                st.error("Especialidad solo debe contener letras")
-            elif not self.validar_solo_letras(titulo):
-                st.error("Título solo debe contener letras")
-            elif not self.validar_telefono(telefono):
-                st.error("Teléfono inválido")
-            elif not self.validar_correo(correo):
-                st.error("Correo inválido")
-            elif not self.validar_edad_minima(fecha_nac):
-                st.error("El docente debe tener mínimo 23 años")
-            else:
-                variableFecha = datetime.strptime(fecha_nac, "%Y-%m-%d").date()
-                variableSql = variableFecha.strftime('%Y-%m-%d')
-
-                persona = {
-                    "dni": dni,
-                    "nombres": nombres,
-                    "apellidos": apellidos,
-                    "telefono": telefono,
-                    "direccion": direccion,
-                    "fecha_nacimiento": variableSql,
-                    "sexo": sexo,
-                    "rol": "DOCENTE",
-                    "correo": correo,
-                    "contrasenia": contrasenia
-                }
-
-                docente = {
-                    "dni": dni,
-                    "especialidad": especialidad,
-                    "titulo": titulo
-                }
-
-                self.lDocente.registrarPersonaDocente(persona, docente)
-                st.success("Docente registrado correctamente")
-
-        st.divider()
-
-        # =================================================
-        # 2 REGISTRAR ASISTENCIA
-        # =================================================
-        st.subheader("2. Registrar asistencia docente")
-
-        with st.form("FormularioAsistencia"):
-            txtDni = st.text_input("DNI del docente")
-            fecha_actual = st.date_input("Fecha")
-            hora_entrada = st.time_input("Hora de entrada", step=60)
-            hora_salida = st.time_input("Hora de salida", step=60)
-            estado = st.selectbox(
-                "Estado",
-                ["PRESENTE", "TARDANZA", "FALTA", "JUSTIFICADO"]
-            )
-            comentario = st.text_input("Comentario")
-            btnGuardar = st.form_submit_button("Registrar asistencia")
-
-        if btnGuardar:
-            if not self.validar_dni(txtDni):
-                st.error("DNI inválido")
-            elif not self.dni_existe(txtDni):
-                st.error("El DNI no existe")
-            else:
-                hora_salida_final = None
-                if estado not in ["FALTA", "JUSTIFICADO"]:
-                    hora_salida_final = f"{hora_salida.strftime('%H:%M')}:00"
-
-                asistencia = {
-                    "dni": txtDni,
-                    "fecha": fecha_actual.strftime("%Y-%m-%d"),
-                    "hora_entrada": f"{hora_entrada.strftime('%H:%M')}:00",
-                    "hora_salida": hora_salida_final,
-                    "estado": estado,
-                    "comentario": comentario
-                }
-
-                self.lDocente.insertarAsistencia(asistencia)
-                st.success("Asistencia registrada correctamente")
-
-        st.divider()
-
-        # =================================================
-        # 3 REPORTE GENERAL
-        # =================================================
-        st.subheader("3. Reporte general")
-        st.dataframe(self.lDocente.mostrarReporte())
-
-        st.divider()
-
-        # =================================================
-        # 4 ELIMINAR DOCENTE
-        # =================================================
-        st.subheader("4. Eliminar docente")
-
-        with st.form("FormularioEliminar"):
-            dni_eliminar = st.text_input("DNI del docente")
-            btnEliminar = st.form_submit_button("Eliminar docente")
-
-        if btnEliminar:
-            if not self.validar_dni(dni_eliminar):
-                st.error("DNI inválido")
-            elif not self.dni_existe(dni_eliminar):
-                st.error("El DNI no existe")
-            else:
-                self.lDocente.eliminarDocente(dni_eliminar)
-                st.success("Docente eliminado correctamente")
-
-        st.divider()
-
-        # =================================================
-        # 5 REPORTE POR DNI
-        # =================================================
-        st.subheader("5. Reporte por DNI")
-
-        dni_buscar = st.text_input("Ingrese DNI")
-        btnBuscar = st.button("Generar reporte")
-
-        if btnBuscar:
-            if not self.validar_dni(dni_buscar):
-                st.error("DNI inválido")
-            else:
-                datos = self.lDocente.buscarPorDni(dni_buscar)
-                if datos is not None and len(datos) > 0:
-                    st.dataframe(datos)
-                else:
-                    st.warning("No se encontraron registros")
-
-                estadisticas = self.lDocente.estadisticasPorDni(dni_buscar)
-                if estadisticas:
-                    df = pd.DataFrame(estadisticas)
-                    conteo = df["estado"].value_counts()
-                    st.pyplot(conteo.plot.pie(autopct="%1.1f%%").figure)
-=======
     # ================= Registrar Asistencia =================
     def vista_registrar_asistencia(self):
         st.header("Registrar Asistencia")
@@ -1304,4 +1117,3 @@ class PAsistenciaDocente:
                 st.bar_chart(df_dni["estado"].value_counts())
             else:
                 st.info("No hay registros para ese DNI")
->>>>>>> RichardTaza

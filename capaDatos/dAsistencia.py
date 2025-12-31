@@ -256,44 +256,6 @@ class DAsistencia:
         result = self.supabase.table(tabla).select("*").execute()
         return result.data if result.data else []
 
-
-        if cursos:
-            for c in cursos:
-                # Eliminar notas 
-                self.__ejecutar(
-                    self.__db.table("nota")
-                    .delete()
-                    .eq("id_docente_curso", c["id_docente_curso"])
-                )
-
-        #  Eliminar asistencia docente
-        self.__ejecutar(
-            self.__db.table("asistencia_docente")
-            .delete()
-            .eq("dni", dni)
-        )
-
-        # 4️⃣ Eliminar docente_curso
-        self.__ejecutar(
-            self.__db.table("docente_curso")
-            .delete()
-            .eq("dni_docente", dni)
-        )
-
-        # 5️⃣ Eliminar docente
-        self.__ejecutar(
-            self.__db.table("docente")
-            .delete()
-            .eq("dni", dni)
-        )
-
-        # 6️⃣ Eliminar persona
-        return self.__ejecutar(
-            self.__db.table("persona")
-            .delete()
-            .eq("dni", dni)
-        )
-
     def editar_asistencia(self, dni, fecha, datos, rol):
         tabla = "asistencia_docente" if rol.lower() == "docente" else "asistencia_alumno"
         result = self.supabase.table(tabla).update(datos)\
@@ -304,4 +266,3 @@ class DAsistencia:
         tabla = "asistencia_docente" if rol.lower() == "docente" else "asistencia_alumno"
         result = self.supabase.table(tabla).delete().eq("dni", dni).eq("fecha", fecha).execute()
         return True, "Eliminado correctamente"
-
