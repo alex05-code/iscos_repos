@@ -794,210 +794,6 @@
 
 
 
-
-# from capaLogica.lAsistencia import LDocente
-# import streamlit as st
-# import pandas as pd
-# from datetime import datetime,date
-# import re
-
-# class PAsistenciaDocente:
-#     def __init__(self):
-#         self.lDocente = LDocente()
-#         self.construirInterfaz()
-
-#     # ================= VALIDACIONES =================
-#     def validar_dni(self, dni):
-#         return dni.isdigit() and len(dni) in [8, 9]
-
-#     def validar_telefono(self, telefono):
-#         return telefono.isdigit() and len(telefono) in [9, 10]
-
-#     def validar_correo(self, correo):
-#         patron = r'^[\w\.-]+@[\w\.-]+\.\w+$'
-#         return re.match(patron, correo) is not None
-
-#     def validar_vacios(self, campos):
-#         for v in campos.values():
-#             if v.strip() == "":
-#                 return False
-#         return True
-
-#     def validar_edad_minima(self, fecha_nac):
-#         try:
-#             fecha_nacimiento = datetime.strptime(fecha_nac, "%Y-%m-%d").date()
-#             hoy = date.today()
-#             edad = hoy.year - fecha_nacimiento.year - (
-#                 (hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day)
-#             )
-#             return edad >= 23
-#         except:
-#             return False
-
-#     # ================= INTERFAZ =================
-#     def construirInterfaz(self):
-#         st.title("Avance ISCOS")
-
-#         # =================================================
-#         # 1️⃣ REGISTRAR DOCENTE
-#         # =================================================
-#         st.subheader("1. Registrar docente")
-
-#         with st.form("FormularioNuevoDocente"):
-#             dni = st.text_input("DNI")
-#             nombres = st.text_input("Nombres")
-#             apellidos = st.text_input("Apellidos")
-#             telefono = st.text_input("Teléfono")
-#             direccion = st.text_input("Dirección")
-#             fecha_nac = st.text_input("Fecha de nacimiento (YYYY-MM-DD)")
-#             sexo = st.selectbox("Sexo", ["M", "F"])
-#             correo = st.text_input("Correo")
-#             contrasenia = st.text_input("Contraseña", type="password")
-#             especialidad = st.text_input("Especialidad")
-#             titulo = st.text_input("Título profesional")
-#             btnRegistrar = st.form_submit_button("Registrar Docente")
-
-#         if btnRegistrar:
-#             campos = {
-#                 "dni": dni,
-#                 "nombres": nombres,
-#                 "apellidos": apellidos,
-#                 "telefono": telefono,
-#                 "direccion": direccion,
-#                 "fecha": fecha_nac,
-#                 "correo": correo,
-#                 "contrasenia": contrasenia,
-#                 "especialidad": especialidad,
-#                 "titulo": titulo
-#             }
-
-#             if not self.validar_vacios(campos):
-#                 st.error("❌ No se permiten campos vacíos")
-#             elif not self.validar_dni(dni):
-#                 st.error("❌ DNI inválido (8 o 9 dígitos)")
-#             elif not self.validar_telefono(telefono):
-#                 st.error("❌ Teléfono inválido (9 o 10 dígitos)")
-#             elif not self.validar_correo(correo):
-#                 st.error("❌ Correo inválido")
-#             elif not self.validar_edad_minima(fecha_nac):
-#                 st.error("❌ El docente debe tener mínimo 23 años")
-#             else:
-#                 # FECHA EXACTA COMO TÚ LA MANDASTE
-#                 variableFecha = datetime.strptime(fecha_nac, "%Y-%m-%d").date()
-#                 variableSql = variableFecha.strftime('%Y-%m-%d')
-
-#                 persona = {
-#                     "dni": dni,
-#                     "nombres": nombres,
-#                     "apellidos": apellidos,
-#                     "telefono": telefono,
-#                     "direccion": direccion,
-#                     "fecha_nacimiento": variableSql,
-#                     "sexo": sexo,
-#                     "rol": "DOCENTE",
-#                     "correo": correo,
-#                     "contrasenia": contrasenia
-#                 }
-
-#                 docente = {
-#                     "dni": dni,
-#                     "especialidad": especialidad,
-#                     "titulo": titulo
-#                 }
-
-#                 self.lDocente.registrarPersonaDocente(persona, docente)
-#                 st.success("✔ Docente registrado correctamente")
-
-#         st.divider()
-
-#         # =================================================
-#         # 2️⃣ REGISTRAR ASISTENCIA DOCENTE
-#         # =================================================
-#         st.subheader("2. Registrar asistencia docente")
-
-#         with st.form("FormularioAsistencia"):
-#             txtDni = st.text_input("DNI del docente")
-#             fecha_actual = st.date_input("Fecha")
-#             hora_entrada = st.time_input("Hora de entrada", step=60)
-#             hora_salida = st.time_input("Hora de salida", step=60)
-#             estado = st.selectbox(
-#                 "Estado",
-#                 ["PRESENTE", "TARDANZA", "FALTA", "JUSTIFICADO"]
-#             )
-#             comentario = st.text_input("Comentario")
-#             btnGuardar = st.form_submit_button("Registrar asistencia")
-
-#         if btnGuardar:
-#             if not self.validar_dni(txtDni):
-#                 st.error("❌ DNI inválido")
-#             else:
-#                 hora_salida_final = None
-#                 if estado not in ["FALTA", "JUSTIFICADO"]:
-#                     hora_salida_final = f"{hora_salida.strftime('%H:%M')}:00"
-
-#                 asistencia = {
-#                     "dni": txtDni,
-#                     "fecha": fecha_actual.strftime("%Y-%m-%d"),
-#                     "hora_entrada": f"{hora_entrada.strftime('%H:%M')}:00",
-#                     "hora_salida": hora_salida_final,
-#                     "estado": estado,
-#                     "comentario": comentario
-#                 }
-
-#                 self.lDocente.insertarAsistencia(asistencia)
-#                 st.success("✔ Asistencia registrada correctamente")
-
-#         st.divider()
-
-#         # =================================================
-#         # 3️⃣ REPORTE GENERAL
-#         # =================================================
-#         st.subheader("3. Reporte general")
-#         st.dataframe(self.lDocente.mostrarReporte())
-
-#         st.divider()
-
-#         # =================================================
-#         # 4️⃣ ELIMINAR DOCENTE
-#         # =================================================
-#         st.subheader("4. Eliminar docente")
-
-#         with st.form("FormularioEliminar"):
-#             dni_eliminar = st.text_input("DNI del docente")
-#             btnEliminar = st.form_submit_button("Eliminar docente")
-
-#         if btnEliminar:
-#             if not self.validar_dni(dni_eliminar):
-#                 st.error("❌ DNI inválido")
-#             else:
-#                 self.lDocente.eliminarDocente(dni_eliminar)
-#                 st.success("✔ Docente eliminado correctamente")
-
-#         st.divider()
-
-#         # =================================================
-#         # 5️⃣ REPORTE POR DNI (CON GRÁFICO)
-#         # =================================================
-#         st.subheader("5. Reporte por DNI")
-
-#         dni_buscar = st.text_input("Ingrese DNI")
-#         btnBuscar = st.button("Generar reporte")
-
-#         if btnBuscar:
-#             if not self.validar_dni(dni_buscar):
-#                 st.error("❌ DNI inválido")
-#             else:
-#                 datos = self.lDocente.buscarPorDni(dni_buscar)
-#                 if datos:
-#                     st.dataframe(datos)
-#                 else:
-#                     st.warning("No se encontraron registros")
-
-#                 estadisticas = self.lDocente.estadisticasPorDni(dni_buscar)
-#                 if estadisticas:
-#                     df = pd.DataFrame(estadisticas)
-#                     conteo = df["estado"].value_counts()
-#                     st.pyplot(conteo.plot.pie(autopct="%1.1f%%").figure)
 import streamlit as st
 import pandas as pd
 from capaLogica.lAsistencia import LAsistencia
@@ -1042,6 +838,181 @@ class PAsistenciaDocente:
         personas = self.logic.listar_personas()
         if personas:
             df = pd.DataFrame(personas)[["dni","nombres","apellidos","rol"]]
+            st.dataframe(df)
+
+    # ================= Registrar Asistencia =================
+    def vista_registrar_asistencia(self):
+        st.header("Registrar Asistencia")
+        dni = st.text_input("DNI")
+        rol = st.selectbox("Rol", ["docente","alumno"])
+        estado = st.selectbox("Estado", ["PRESENTE","FALTA","JUSTIFICADO"])
+        comentario = st.text_area("Comentario")
+        if st.button("Registrar Asistencia"):
+            ok, msg = self.logic.registrar_asistencia(dni, rol, estado, comentario)
+            st.success(msg) if ok else st.error(msg)
+
+        asistencias = self.logic.listar_asistencias(rol)
+        if asistencias:
+            df = pd.DataFrame(asistencias)
+            st.dataframe(df)
+
+    # ================= Registrar Salida =================
+    def vista_registrar_salida(self):
+        st.header("Registrar Salida")
+        dni = st.text_input("DNI")
+        rol = st.selectbox("Rol", ["docente","alumno"])
+        if st.button("Registrar Salida"):
+            ok, msg = self.logic.registrar_salida(dni, rol)
+            st.success(msg) if ok else st.error(msg)
+
+    # ================= Editar/Eliminar =================
+    def vista_editar_eliminar_asistencia(self):
+        st.header("Editar / Eliminar Asistencia")
+        rol = st.selectbox("Seleccionar rol", ["docente","alumno"])
+        asistencias = self.logic.listar_asistencias(rol)
+        if not asistencias:
+            st.info("No hay asistencias")
+            return
+
+        df = pd.DataFrame(asistencias)
+        df["seleccionar"] = False
+        edited_df = st.data_editor(df, num_rows="dynamic", use_container_width=True)
+        for i, fila in edited_df.iterrows():
+            if fila.get("seleccionar"):
+                with st.form(f"form_{i}"):
+                    estado = st.selectbox("Estado", ["PRESENTE","FALTA","JUSTIFICADO"], index=["PRESENTE","FALTA","JUSTIFICADO"].index(fila["estado"]))
+                    comentario = st.text_area("Comentario", fila.get("comentario",""))
+                    submitted_edit = st.form_submit_button("Actualizar")
+                    if submitted_edit:
+                        ok, msg = self.logic.editar_asistencia(fila["dni"], fila["fecha"], {"estado":estado,"comentario":comentario}, rol)
+                        st.success(msg) if ok else st.error(msg)
+                    submitted_delete = st.form_submit_button("Eliminar")
+                    if submitted_delete:
+                        ok, msg = self.logic.eliminar_asistencia(fila["dni"], fila["fecha"], rol)
+                        st.success(msg) if ok else st.error(msg)
+
+    # ================= Reporte =================
+    def vista_reporte(self):
+        st.header("Reporte Estadístico")
+        rol = st.selectbox("Rol", ["docente","alumno"])
+        asistencias = self.logic.listar_asistencias(rol)
+        if not asistencias:
+            st.info("No hay asistencias")
+            return
+
+        df = pd.DataFrame(asistencias)
+        st.subheader("Reporte General")
+        counts = df["estado"].value_counts()
+        st.bar_chart(counts)
+
+        st.subheader("Reporte por DNI")
+        dni = st.text_input("Buscar por DNI")
+        if dni:
+            df_dni = df[df["dni"]==dni]
+            if not df_dni.empty:
+                st.bar_chart(df_dni["estado"].value_counts())
+            else:
+                st.info("No hay registros para ese DNI")
+import streamlit as st
+import pandas as pd
+from datetime import datetime, date
+from capaLogica.lAsistencia import LAsistencia
+import re
+
+class PAsistenciaDocente:
+    def __init__(self):
+        self.logic = LAsistencia()
+        self.menu_principal()
+
+    # ================= VALIDACIONES =================
+    def validar_dni(self, dni):
+        return dni.isdigit() and len(dni) in [8, 9]
+
+    def validar_correo(self, correo):
+        patron = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+        return re.match(patron, correo) is not None
+
+    def validar_vacios(self, campos):
+        for v in campos.values():
+            if str(v).strip() == "":
+                return False
+        return True
+
+    def validar_edad(self, fecha_nac, rol):
+        try:
+            fecha_nacimiento = datetime.strptime(fecha_nac, "%Y-%m-%d").date()
+            hoy = date.today()
+            edad = hoy.year - fecha_nacimiento.year - ((hoy.month, hoy.day) < (fecha_nacimiento.month, fecha_nacimiento.day))
+            if rol == "docente":
+                return edad >= 23
+            elif rol == "alumno":
+                return 5 <= edad <= 25
+            return True
+        except:
+            return False
+
+    # ================= MENU PRINCIPAL =================
+    def menu_principal(self):
+        opciones = ["Registrar Persona", "Registrar Asistencia", "Registrar Salida", "Editar/Eliminar Asistencia", "Reporte"]
+        menu = st.sidebar.selectbox("Menú", opciones)
+        if menu == "Registrar Persona":
+            self.vista_registrar_persona()
+        elif menu == "Registrar Asistencia":
+            self.vista_registrar_asistencia()
+        elif menu == "Registrar Salida":
+            self.vista_registrar_salida()
+        elif menu == "Editar/Eliminar Asistencia":
+            self.vista_editar_eliminar_asistencia()
+        elif menu == "Reporte":
+            self.vista_reporte()
+
+    # ================= Registrar Persona =================
+    def vista_registrar_persona(self):
+        st.header("Registrar Persona")
+        roles = ["docente", "alumno"]
+        with st.form("form_persona"):
+            dni = st.text_input("DNI")
+            nombres = st.text_input("Nombres")
+            apellidos = st.text_input("Apellidos")
+            sexo = st.selectbox("Sexo", ["M", "F"])
+            rol = st.selectbox("Rol", roles)
+            fecha_nac = st.text_input("Fecha de nacimiento (YYYY-MM-DD)")
+            correo = st.text_input("Correo")
+            contrasenia = st.text_input("Contraseña", type="password")
+            submitted = st.form_submit_button("Registrar")
+            
+            if submitted:
+                persona = {
+                    "dni": dni,
+                    "nombres": nombres,
+                    "apellidos": apellidos,
+                    "sexo": sexo,
+                    "rol": rol.upper(),
+                    "fecha_nacimiento": fecha_nac,
+                    "correo": correo,
+                    "contrasenia": contrasenia
+                }
+
+                # Validaciones
+                if not self.validar_vacios(persona):
+                    st.error("❌ No se permiten campos vacíos")
+                elif not self.validar_dni(dni):
+                    st.error("❌ DNI inválido (8 o 9 dígitos)")
+                elif correo and not self.validar_correo(correo):
+                    st.error("❌ Correo inválido")
+                elif not self.validar_edad(fecha_nac, rol):
+                    st.error("❌ Edad inválida según rol")
+                else:
+                    try:
+                        ok, msg = self.logic.registrar_persona(persona)
+                        st.success(msg) if ok else st.error(msg)
+                    except Exception as e:
+                        st.error(f"❌ Error al registrar: {str(e)}")
+
+        # Mostrar tabla de personas
+        personas = self.logic.listar_personas()
+        if personas:
+            df = pd.DataFrame(personas)[["dni","nombres","apellidos","sexo","rol"]]
             st.dataframe(df)
 
     # ================= Registrar Asistencia =================
