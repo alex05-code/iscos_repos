@@ -869,7 +869,7 @@ class PAsistenciaDocente:
             if rol == "docente":
                 return edad >= 23
             elif rol == "alumno":
-                return 5 <= edad <= 25
+                return 10 <= edad <= 19
             return True
         except:
             return False

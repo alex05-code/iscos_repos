@@ -266,3 +266,38 @@ class DAsistencia:
         tabla = "asistencia_docente" if rol.lower() == "docente" else "asistencia_alumno"
         result = self.supabase.table(tabla).delete().eq("dni", dni).eq("fecha", fecha).execute()
         return True, "Eliminado correctamente"
+from supabase import Client
+
+class DPersona:
+    def __init__(self, supabase: Client):
+        self.supabase = supabase
+
+    def insertar_persona_y_rol(self, persona):
+        try:
+            # 1️⃣ Insertar en tabla persona
+            res = self.supabase.table("persona").insert(persona).execute()
+
+            if not res.data:
+                return False, "No se pudo registrar la persona"
+
+            dni = persona["dni"]
+            rol = persona["rol"].upper()
+
+            # 2️⃣ Insertar según rol
+            if rol == "DOCENTE":
+                self.supabase.table("docente").insert({
+                    "dni": dni
+                }).execute()
+
+            elif rol == "ALUMNO":
+                self.supabase.table("alumno").insert({
+                    "dni": dni
+                }).execute()
+
+            else:
+                return False, "Rol no válido"
+
+            return True, "Persona registrada correctamente"
+
+        except Exception as e:
+            return False, f"Error BD: {str(e)}"

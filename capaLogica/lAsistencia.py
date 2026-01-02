@@ -70,14 +70,17 @@
 
 #     def eliminarDocente(self, dni):
 #         return self.dAsistenciaDocente.eliminarDocenteTotal(dni)
-from capaDatos.dAsistencia import DAsistencia
+
+from capaDatos.dAsistencia import DAsistencia, DPersona
+
 
 class LAsistencia:
     def __init__(self):
         self.data = DAsistencia()
+        self.persona_data = DPersona(self.data.supabase)
 
     def registrar_persona(self, persona):
-        return self.data.insertar_persona(persona)
+        return self.persona_data.insertar_persona_y_rol(persona)
 
     def listar_personas(self):
         return self.data.listar_personas()
@@ -96,3 +99,4 @@ class LAsistencia:
 
     def eliminar_asistencia(self, dni, fecha, rol):
         return self.data.eliminar_asistencia(dni, fecha, rol)
+
