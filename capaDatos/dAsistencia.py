@@ -197,7 +197,7 @@
 #         )
 
 from supabase import create_client, Client
-import datetime
+from datetime import datetime
 
 class DAsistencia:
     def __init__(self):
@@ -220,36 +220,76 @@ class DAsistencia:
         return result.data if result.data else []
 
     # ================= Asistencias =================
+
     def registrar_asistencia(self, dni, rol, estado="FALTA", comentario=""):
-        fecha_hoy = datetime.datetime.now().date().isoformat()
-        ahora = datetime.datetime.now().strftime("%H:%M:%S")
+    # 🔒 Validar que el DNI pertenezca al rol correcto
+        if not self.validar_dni_por_rol(dni, rol):
+            return False, f"❌ El DNI no pertenece a un {rol}"
 
-        tabla = "asistencia_docente" if rol.lower() == "docente" else "asistencia_alumno"
+        fecha = datetime.now().date().isoformat()
+        hora = datetime.now().strftime("%H:%M:%S")
 
-        # Validar si ya hay registro hoy
-        existing = self.supabase.table(tabla).select("*")\
-                        .eq("dni", dni).eq("fecha", fecha_hoy).execute()
-        if existing.data:
-            return False, "Ya registró asistencia hoy"
+        if rol.lower() == "docente":
+            tabla = "asistencia_docente"
+            data = {
+                "dni": dni,
+                "fecha": fecha,
+                "hora_entrada": hora,
+                "hora_salida": None,
+                "estado": estado,
+                "comentario": comentario
+            }
+        else:
+            tabla = "asistencia_alumno"
+            data = {
+                "dni": dni,
+                "fecha": fecha,
+                "hora_entrada": hora,
+                "estado": estado,
+                "comentario": comentario
+            }
 
-        result = self.supabase.table(tabla).insert({
-            "dni": dni,
-            "fecha": fecha_hoy,
-            "hora_entrada": ahora,
-            "hora_salida": None,
-            "estado": estado,
-            "comentario": comentario
-        }).execute()
-        return True, "Asistencia registrada"
+        # 🔁 Evitar doble registro el mismo día
+        existe = self.supabase.table(tabla) \
+            .select("dni") \
+            .eq("dni", dni) \
+            .eq("fecha", fecha) \
+            .execute()
+
+        if existe.data:
+            return False, "Ya tiene asistencia registrada hoy"
+
+        self.supabase.table(tabla).insert(data).execute()
+        return True, "Asistencia registrada correctamente"
+
+    
+    def validar_dni_por_rol(self, dni, rol):
+        tabla = "docente" if rol.lower() == "docente" else "alumno"
+
+        res = self.supabase.table(tabla) \
+            .select("dni") \
+            .eq("dni", dni) \
+            .execute()
+
+        return bool(res.data)
+
 
     def registrar_salida(self, dni, rol):
-        fecha_hoy = datetime.datetime.now().date().isoformat()
-        ahora = datetime.datetime.now().strftime("%H:%M:%S")
-        tabla = "asistencia_docente" if rol.lower() == "docente" else "asistencia_alumno"
+        if rol.lower() != "docente":
+            return False, "Los alumnos no registran salida"
 
-        result = self.supabase.table(tabla).update({"hora_salida": ahora})\
-            .eq("dni", dni).eq("fecha", fecha_hoy).execute()
+        hora = datetime.now().strftime("%H:%M:%S")
+        fecha = datetime.now().date().isoformat()
+
+        self.supabase.table("asistencia_docente") \
+            .update({"hora_salida": hora}) \
+            .eq("dni", dni) \
+            .eq("fecha", fecha) \
+            .is_("hora_salida", None) \
+            .execute()
+
         return True, "Salida registrada"
+
 
     def listar_asistencias(self, rol):
         tabla = "asistencia_docente" if rol.lower() == "docente" else "asistencia_alumno"
