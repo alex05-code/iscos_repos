@@ -219,7 +219,7 @@ class DAsistencia:
         result = self.supabase.table("persona").select("*").execute()
         return result.data if result.data else []
 
-    # ================= Asistencias =================
+    # Asistencias 
 
     def registrar_asistencia(self, dni, rol, estado="FALTA", comentario=""):
     # 🔒 Validar que el DNI pertenezca al rol correcto
